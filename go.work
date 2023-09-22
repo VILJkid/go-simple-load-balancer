@@ -1,0 +1,8 @@
+go 1.21.1
+
+// github.com/VILJkid/go-simple-load-balancer => ./
+// use github.com/VILJkid/go-simple-load-balancer/example-server => ./example-server
+use (
+    ./
+    ./example-server
+    )

@@ -1,3 +1,3 @@
-module github.com/araujo88/simple-load-balancer
+module github.com/VILJkid/go-simple-load-balancer
 
-go 1.20
+go 1.21.1
