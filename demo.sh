@@ -1,26 +1,30 @@
 #!/bin/bash
 
+# Define global variables
+server_name="example-server.app"
+declare -a port_numbers=("8081" "8082")
+
+# --------------------------------------------------------
+
 # Navigate to the example-server directory
 cd example-server
     
-# Perform necessary Go build operations
-app_name="example-server.bin"
+# Perform necessary operations
+rm -rf logs
+mkdir logs
 go mod tidy
-go build -o "$app_name"
+go build -o "$server_name"
 
-# Define an array of port numbers
-declare -a port_numbers=("8081" "8082")
-
-# Declare an associative array to store pids
-declare -A pids
+# Define an associative array to store Server process IDs
+declare -A server_pids
 
 # Function to start the servers
 start_servers() {
     # Start the Go servers and populate the pids array
     for port in "${port_numbers[@]}"; do
-        ./"$app_name" "$port" > "server$port.log" 2>&1 &
-        pids["$port"]=$!
-        echo "Server on port $port with pid ${pids[$port]} started."
+        ./"$server_name" "$port" > "logs/server$port.log" 2>&1 &
+        server_pids["$port"]=$!
+        echo "Server on port $port with pid ${server_pids[$port]} started."
     done
 }
 
@@ -28,7 +32,7 @@ start_servers() {
 stop_servers() {
     echo ""
     for port in "${port_numbers[@]}"; do
-        pid="${pids[$port]}"
+        pid="${server_pids[$port]}"
         if [ -n "$pid" ]; then
             if [ -n "$safe_exit" ]; then
                 kill -INT "$pid"
@@ -48,3 +52,5 @@ start_servers
 
 read -p "Press Enter to stop the servers gracefully..."
 safe_exit=1
+
+# --------------------------------------------------------
