@@ -24,3 +24,4 @@
 
 # Server and Load Balancer log files
 example-server/logs
+load-balancer/logs

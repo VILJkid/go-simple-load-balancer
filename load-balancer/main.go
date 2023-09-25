@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"os"
 	"sync"
 	"sync/atomic"
 )
@@ -16,22 +17,24 @@ type Server struct {
 }
 
 // List of backend servers
-var servers = []*Server{
-	{
-		URL: &url.URL{
-			Scheme: "http",
-			Host:   "localhost:8081",
-		},
-		ActiveConns: 0,
-	},
-	{
-		URL: &url.URL{
-			Scheme: "http",
-			Host:   "localhost:8082",
-		},
-		ActiveConns: 0,
-	},
-}
+var servers []*Server
+
+// var servers = []*Server{
+// 	{
+// 		URL: &url.URL{
+// 			Scheme: "http",
+// 			Host:   ":8081",
+// 		},
+// 		ActiveConns: 0,
+// 	},
+// 	{
+// 		URL: &url.URL{
+// 			Scheme: "http",
+// 			Host:   ":8082",
+// 		},
+// 		ActiveConns: 0,
+// 	},
+// }
 
 var serverLock sync.Mutex
 
@@ -122,6 +125,23 @@ func proxyHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	if len(os.Args) < 2 {
+		panic("atleast one port is required")
+	}
+
+	s := os.Args[1:]
+	for _, port := range s {
+		servers = append(servers, &Server{
+			URL: &url.URL{
+				Scheme: "http",
+				Host:   ":" + port,
+			},
+			ActiveConns: 0,
+		})
+	}
+
+	fmt.Printf("Servers: %#+v\n", servers)
+
 	http.HandleFunc("/", proxyHandler)
 
 	fmt.Println("Load Balancer running on :3000")
